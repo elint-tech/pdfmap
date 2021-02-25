@@ -80,10 +80,11 @@ class pdfWordMap:
         
         return self.word_map
 
-if __name__ == "__main__":
-    pdfwm = pdfWordMap()
-    for datatuple in pdfwm.parse_pdf('../dataset2/1-Celesc-06_2018.pdf'):
-        print(datatuple)
-        print('\n')
-    # print([f'{datatuple}\\n' for datatuple in pdfwm.parse_pdf('../dataset2/1-Celesc-06_2018.pdf')])
-    
+# if __name__ == "__main__":
+#     pdfwm = pdfWordMap()
+
+    # for datatuple in pdfwm.parse_pdf('../dataset/sample8.pdf'):
+    #     print(datatuple)
+    #     print('\n')
+
+    # print(pdfwm.parse_pdf('../dataset/sample8.pdf'))
