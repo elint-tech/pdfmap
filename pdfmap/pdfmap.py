@@ -79,12 +79,3 @@ class pdfWordMap:
             self.parse_obj(layout._objs)
         
         return self.word_map
-
-# if __name__ == "__main__":
-#     pdfwm = pdfWordMap()
-
-    # for datatuple in pdfwm.parse_pdf('../dataset/sample8.pdf'):
-    #     print(datatuple)
-    #     print('\n')
-
-    # print(pdfwm.parse_pdf('../dataset/sample8.pdf'))

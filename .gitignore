@@ -132,4 +132,4 @@ dmypy.json
 /dataset
 
 # Tests
-test.py
+*ww.py

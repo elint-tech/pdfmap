@@ -9,7 +9,7 @@ from os.path import join, dirname
 
 here = dirname(__file__)
 
-_VERSION = '0.0.1'
+_VERSION = '0.0.7'
 
 setup(name='pdfmap',
       version=_VERSION,
