@@ -18,8 +18,8 @@ setup(name='pdfmap',
       license='proprietary',
       author='elint-tech',
       author_email='contato@elint.com.br',
-      url='https://github.com/elint-tech/seekndestroy/',
-      download_url = 'https://github.com/elint-tech/seekndestroy/dist/seekndestroy-' + _VERSION + 'tar.gz',
+      url='https://github.com/elint-tech/pdfmap/',
+      download_url = 'https://github.com/elint-tech/pdfmap/dist/pdfmap-' + _VERSION + 'tar.gz',
       install_requires=list(map(
         lambda string: string.strip("\n"),
         open("requirements.txt", "r")
