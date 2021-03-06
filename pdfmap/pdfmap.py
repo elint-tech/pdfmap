@@ -1,17 +1,16 @@
+import io
 from numbers import Number
 from os import PathLike
 from typing import List, Optional, Tuple, Union
 
 import pdfminer
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfpage import PDFPage
-from pdfminer.pdfpage import PDFTextExtractionNotAllowed
-from pdfminer.pdfinterp import PDFResourceManager
-from pdfminer.pdfinterp import PDFPageInterpreter
-from pdfminer.pdfdevice import PDFDevice
-from pdfminer.layout import LAParams
 from pdfminer.converter import PDFPageAggregator
+from pdfminer.layout import LAParams
+from pdfminer.pdfdevice import PDFDevice
+from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
+from pdfminer.pdfpage import PDFPage, PDFTextExtractionNotAllowed
+from pdfminer.pdfparser import PDFParser
 
 
 WordMap = List[
@@ -73,13 +72,17 @@ class pdfWordMap:
 
     def parse_pdf(
             self,
-            filename: Union[str, PathLike],
+            source: Union[str, PathLike, bytes],
             confidence: Optional[Number] = None
     ) -> Union[WordMap, ConfidentWordMap]:
         self.word_map = []
 
-        # Open a PDF file.
-        fp = open(filename, 'rb')
+        if isinstance(source, bytes):
+            # Use PDF bytes.
+            fp = io.BytesIO(source)
+        else:
+            # Open a PDF file.
+            fp = open(source, 'rb')
 
         # Create a PDF parser object associated with the file object.
         parser = PDFParser(fp)
