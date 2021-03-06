@@ -1,16 +1,18 @@
 # pdfmap
 
 
-#### Dependencies
+## Dependencies
 * pdfminer
 
-### Setup
+## Setup
 
 ```bash
 pip3 install pdfmap
 ```
 
-### Usage
+## Usage
+
+Simple usage can be achieved with:
 
 ```python
 from pdfmap import pdfWordMap
@@ -18,3 +20,5 @@ from pdfmap import pdfWordMap
 pdfwm = pdfWordMap()
 print(pdfwm.parse_pdf('folder/pdfname.pdf'))
 ```
+
+For other examples, check out [our example script](example.py)
