@@ -11,3 +11,8 @@ pdfwm = pdfWordMap()
 wordmap = pdfwm.parse_pdf(filepath)
 print(f'First {N_ENTRIES} entries from {filepath}'.center(80, '+'))
 pprint(wordmap[:N_ENTRIES])
+
+pdfwm = pdfWordMap()
+wordmap = pdfwm.parse_pdf(filepath, confidence=100)
+print(f'First {N_ENTRIES} entries from {filepath}'.center(80, '+'))
+pprint(wordmap[:N_ENTRIES])
