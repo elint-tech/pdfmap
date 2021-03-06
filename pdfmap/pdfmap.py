@@ -1,3 +1,7 @@
+from numbers import Number
+from os import PathLike
+from typing import List, Optional, Tuple, Union
+
 import pdfminer
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
@@ -9,8 +13,19 @@ from pdfminer.pdfdevice import PDFDevice
 from pdfminer.layout import LAParams
 from pdfminer.converter import PDFPageAggregator
 
-class pdfWordMap:
 
+WordMap = List[
+    Tuple[
+        Number, # x1
+        Number, # x2
+        Number, # y1
+        Number, # y2
+        str # text
+    ]
+]
+
+
+class pdfWordMap:
     def __init__(self):
         self.word_map = [] # list of (x1,x2,y1,y2,'textString') tuples
 
@@ -35,8 +50,7 @@ class pdfWordMap:
             elif isinstance(obj, pdfminer.layout.LTFigure):
                 self.parse_obj(obj._objs)
 
-    def parse_pdf(self, filename):
-
+    def parse_pdf(self, filename: Union[str, PathLike]) -> WordMap:
         self.word_map = []
 
         # Open a PDF file.
@@ -66,7 +80,7 @@ class pdfWordMap:
         # Create a PDF page aggregator object.
         device = PDFPageAggregator(rsrcmgr, laparams=laparams)
 
-            # Create a PDF interpreter object.
+        # Create a PDF interpreter object.
         interpreter = PDFPageInterpreter(rsrcmgr, device)
 
         # loop over all pages in the document
@@ -77,5 +91,5 @@ class pdfWordMap:
 
             # extract text from this object
             self.parse_obj(layout._objs)
-        
+
         return self.word_map
