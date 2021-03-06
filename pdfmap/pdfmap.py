@@ -23,34 +23,59 @@ WordMap = List[
         str # text
     ]
 ]
+ConfidentWordMap = List[
+    Tuple[
+        Number, # x1
+        Number, # x2
+        Number, # y1
+        Number, # y2
+        str, # text
+        Number # confidence
+    ]
+]
 
 
 class pdfWordMap:
     def __init__(self):
         self.word_map = [] # list of (x1,x2,y1,y2,'textString') tuples
 
-    def parse_obj(self, lt_objs):
-
+    def parse_obj(
+            self,
+            lt_objs,
+            confidence: Optional[Number] = None
+    ) -> None:
         # loop over the object list
         for obj in lt_objs:
-
             if isinstance(obj, pdfminer.layout.LTTextLine):
-                block = ([obj.bbox[0], obj.bbox[1]], [obj.bbox[2], obj.bbox[3]], obj.get_text().replace('\n', ''))
-                block[0][0] = round(block[0][0], 2)
-                block[0][1] = round(block[0][1], 2)
-                block[1][0] = round(block[1][0], 2)
-                block[1][1] = round(block[1][1], 2)
+                x1, y1, x2, y2 = (
+                    round(vertex, 2)
+                    for vertex in obj.bbox
+                )
+
+                block = (
+                    (x1, y1),
+                    (x2, y2),
+                    obj.get_text().replace('\n', '')
+                )
+
+                if confidence is not None:
+                    block += (confidence,)
+
                 self.word_map.append(block)
 
             # if it's a textbox, also recurse
             if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
-                self.parse_obj(obj._objs)
+                self.parse_obj(obj._objs, confidence=confidence)
 
             # if it's a container, recurse
             elif isinstance(obj, pdfminer.layout.LTFigure):
-                self.parse_obj(obj._objs)
+                self.parse_obj(obj._objs, confidence=confidence)
 
-    def parse_pdf(self, filename: Union[str, PathLike]) -> WordMap:
+    def parse_pdf(
+            self,
+            filename: Union[str, PathLike],
+            confidence: Optional[Number] = None
+    ) -> Union[WordMap, ConfidentWordMap]:
         self.word_map = []
 
         # Open a PDF file.
@@ -90,6 +115,6 @@ class pdfWordMap:
             layout = device.get_result()
 
             # extract text from this object
-            self.parse_obj(layout._objs)
+            self.parse_obj(layout._objs, confidence=confidence)
 
         return self.word_map
