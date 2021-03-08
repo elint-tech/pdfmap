@@ -15,6 +15,7 @@ from pdfminer.pdfparser import PDFParser
 
 WordMap = List[
     Tuple[
+        Number, # page
         Number, # x1
         Number, # x2
         Number, # y1
@@ -24,6 +25,7 @@ WordMap = List[
 ]
 ConfidentWordMap = List[
     Tuple[
+        Number, # page
         Number, # x1
         Number, # x2
         Number, # y1
@@ -36,11 +38,12 @@ ConfidentWordMap = List[
 
 class pdfWordMap:
     def __init__(self):
-        self.word_map = [] # list of (x1,x2,y1,y2,'textString') tuples
+        self.word_map = [] # list of (page,x1,x2,y1,y2,'textString') tuples
 
     def parse_obj(
             self,
             lt_objs,
+            page,
             confidence: Optional[Number] = None
     ) -> None:
         # loop over the object list
@@ -52,6 +55,7 @@ class pdfWordMap:
                 )
 
                 block = (
+                    page,
                     (x1, y1),
                     (x2, y2),
                     obj.get_text().replace('\n', '')
@@ -64,11 +68,11 @@ class pdfWordMap:
 
             # if it's a textbox, also recurse
             if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
-                self.parse_obj(obj._objs, confidence=confidence)
+                self.parse_obj(obj._objs, page=page, confidence=confidence)
 
             # if it's a container, recurse
             elif isinstance(obj, pdfminer.layout.LTFigure):
-                self.parse_obj(obj._objs, confidence=confidence)
+                self.parse_obj(obj._objs, page=page, confidence=confidence)
 
     def parse_pdf(
             self,
@@ -111,13 +115,13 @@ class pdfWordMap:
         # Create a PDF interpreter object.
         interpreter = PDFPageInterpreter(rsrcmgr, device)
 
-        # loop over all pages in the document
-        for page in PDFPage.get_pages(fp):
+        # loop over all pages in the document and get the page index number
+        for page_number, page in enumerate(PDFPage.get_pages(fp)):
             # read the page into a layout object
             interpreter.process_page(page)
             layout = device.get_result()
 
             # extract text from this object
-            self.parse_obj(layout._objs, confidence=confidence)
+            self.parse_obj(layout._objs, page=page_number+1, confidence=confidence)
 
         return self.word_map
