@@ -9,12 +9,13 @@ from os.path import join, dirname
 
 here = dirname(__file__)
 
-_VERSION = '0.0.8'
+_VERSION = '0.0.9'
 
 setup(name='pdfmap',
       version=_VERSION,
       description="Turning PDF into WordMap algorithm",
       long_description=open(join(here, 'README.md')).read(),
+      long_description_content_type="text/markdown",
       license='proprietary',
       author='elint-tech',
       author_email='contato@elint.com.br',
@@ -25,7 +26,7 @@ setup(name='pdfmap',
         open("requirements.txt", "r")
       )),
       packages=find_packages(),
-      keywords = ['pdfmap'],
+      keywords = ['pdfmap', 'pdf', 'wordmap'],
       classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -35,9 +36,6 @@ setup(name='pdfmap',
         'Topic :: Software Development',
         'Topic :: Utilities',
         'License :: Other/Proprietary License',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Operating System :: OS Independent',
