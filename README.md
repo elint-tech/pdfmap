@@ -1,4 +1,4 @@
-# pdfmap
+# pdfmap [![PyPI version fury.io](https://img.shields.io/pypi/v/pdfmap?color=green)](https://github.com/elint-tech/pdfmap) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pdfmap)](https://github.com/elint-tech/pdfmap)
 
 
 ## Dependencies
