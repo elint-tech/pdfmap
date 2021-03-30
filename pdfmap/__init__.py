@@ -1,1 +1,1 @@
-from pdfmap.pdfmap import pdfWordMap
+from pdfmap.pdfmap import pdfWordMap, PDFTextExtractionNotAllowed
