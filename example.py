@@ -30,3 +30,9 @@ with filepath.open('rb') as fp:
 pdfwm = pdfWordMap()
 wordmap = pdfwm.parse_pdf(data)
 pprint(wordmap[:N_ENTRIES])
+
+
+print_header(f'Calculate pages size from {filepath}')
+pdfwm = pdfWordMap()
+sizes = pdfwm.pages_size(filepath)
+print(sizes)
