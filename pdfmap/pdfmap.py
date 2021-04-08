@@ -44,7 +44,7 @@ class pdfWordMap:
     def parse_obj(
             self,
             lt_objs,
-            page,
+            page_number: int,
             confidence: Optional[Number] = None
     ) -> None:
         # loop over the object list
@@ -56,7 +56,7 @@ class pdfWordMap:
                 )
 
                 block = (
-                    page,
+                    page_number,
                     (x1, y1),
                     (x2, y2),
                     obj.get_text().replace('\n', '')
@@ -69,11 +69,19 @@ class pdfWordMap:
 
             # if it's a textbox, also recurse
             if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
-                self.parse_obj(obj._objs, page=page, confidence=confidence)
+                self.parse_obj(
+                    obj._objs,
+                    page_number=page_number,
+                    confidence=confidence
+                )
 
             # if it's a container, recurse
             elif isinstance(obj, pdfminer.layout.LTFigure):
-                self.parse_obj(obj._objs, page=page, confidence=confidence)
+                self.parse_obj(
+                    obj._objs,
+                    page_number=page_number,
+                    confidence=confidence
+                )
 
     def parse_pdf(
             self,
@@ -123,7 +131,11 @@ class pdfWordMap:
             layout = device.get_result()
 
             # extract text from this object
-            self.parse_obj(layout._objs, page=page_number+1, confidence=confidence)
+            self.parse_obj(
+                layout._objs,
+                page_number=page_number+1,
+                confidence=confidence
+            )
 
         return self.word_map
 
