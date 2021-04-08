@@ -12,7 +12,7 @@ from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage, PDFTextExtractionNotAllowed
 from pdfminer.pdfparser import PDFParser
 
-from pdfmap.utils import Shape
+from pdfmap.utils import Origin, Shape
 
 WordMap = List[
     Tuple[
@@ -45,6 +45,8 @@ class pdfWordMap:
             self,
             lt_objs,
             page_number: int,
+            page_size: Shape,
+            origin: Origin = Origin.TOP_LEFT,
             confidence: Optional[Number] = None
     ) -> None:
         # loop over the object list
@@ -54,6 +56,15 @@ class pdfWordMap:
                     round(vertex, 2)
                     for vertex in obj.bbox
                 )
+
+                if origin is Origin.TOP_LEFT:
+                    y1, y2 = (page_size.height - y2, page_size.height - y1)
+                elif origin is not Origin.BOTTOM_LEFT:
+                    raise ValueError(
+                        f'there is no support for {origin} yet.'
+                        ' please use either'
+                        f' {Origin.BOTTOM_LEFT} or {Origin.TOP_LEFT}'
+                    )
 
                 block = (
                     page_number,
@@ -72,6 +83,8 @@ class pdfWordMap:
                 self.parse_obj(
                     obj._objs,
                     page_number=page_number,
+                    page_size=page_size,
+                    origin=origin,
                     confidence=confidence
                 )
 
@@ -80,12 +93,15 @@ class pdfWordMap:
                 self.parse_obj(
                     obj._objs,
                     page_number=page_number,
+                    page_size=page_size,
+                    origin=origin,
                     confidence=confidence
                 )
 
     def parse_pdf(
             self,
             source: Union[str, PathLike, bytes],
+            origin: Origin = Origin.TOP_LEFT,
             confidence: Optional[Number] = None
     ) -> Union[WordMap, ConfidentWordMap]:
         self.word_map = []
@@ -134,10 +150,16 @@ class pdfWordMap:
             self.parse_obj(
                 layout._objs,
                 page_number=page_number+1,
+                page_size=self.page_size(page),
+                origin=origin,
                 confidence=confidence
             )
 
         return self.word_map
+
+    def page_size(self, page: PDFPage) -> Shape:
+        _, _, width, height = page.mediabox
+        return Shape(width=width, height=height)
 
     def pages_size(
             self,
@@ -161,8 +183,7 @@ class pdfWordMap:
 
         pages_size = []
         for page in PDFPage.create_pages(document):
-            _, _, width, height = page.mediabox
-            shape = Shape(width=width, height=height)
+            shape = self.page_size(page)
             pages_size.append(shape)
 
         return pages_size
