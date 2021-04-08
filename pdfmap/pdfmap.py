@@ -12,6 +12,7 @@ from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage, PDFTextExtractionNotAllowed
 from pdfminer.pdfparser import PDFParser
 
+from pdfmap.utils import Shape
 
 WordMap = List[
     Tuple[
@@ -125,3 +126,31 @@ class pdfWordMap:
             self.parse_obj(layout._objs, page=page_number+1, confidence=confidence)
 
         return self.word_map
+
+    def pages_size(
+            self,
+            source: Union[str, PathLike, bytes]
+    ) -> List[Shape]:
+        # source: https://stackoverflow.com/a/48886525/5811400
+
+        if isinstance(source, bytes):
+            # Use PDF bytes.
+            fp = io.BytesIO(source)
+        else:
+            # Open a PDF file.
+            fp = open(source, 'rb')
+
+        # Create a PDF parser object associated with the file object.
+        parser = PDFParser(fp)
+
+        # Create a PDF document object that stores the document structure.
+        # Password for initialization as 2nd parameter
+        document = PDFDocument(parser)
+
+        pages_size = []
+        for page in PDFPage.create_pages(document):
+            _, _, width, height = page.mediabox
+            shape = Shape(width=width, height=height)
+            pages_size.append(shape)
+
+        return pages_size
