@@ -1,8 +1,8 @@
 from pathlib import Path
-from pdfmap.utils import Origin
 from pprint import pprint
 
 from pdfmap import pdfWordMap
+from pdfmap.utils import Origin
 
 
 def print_header(s: str) -> None:
