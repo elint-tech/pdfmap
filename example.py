@@ -2,6 +2,7 @@ from pathlib import Path
 from pprint import pprint
 
 from pdfmap import pdfWordMap
+from pdfmap.utils import Origin
 
 
 def print_header(s: str) -> None:
@@ -35,4 +36,15 @@ pprint(wordmap[:N_ENTRIES])
 print_header(f'Calculate pages size from {filepath}')
 pdfwm = pdfWordMap()
 sizes = pdfwm.pages_size(filepath)
-print(sizes)
+pprint(sizes)
+
+
+print_header(f'Use {Origin.TOP_LEFT} to read {filepath}')
+pdfwm = pdfWordMap()
+wordmap = pdfwm.parse_pdf(data, origin=Origin.TOP_LEFT)
+pprint(wordmap[:N_ENTRIES])
+
+print_header(f'Use {Origin.BOTTOM_LEFT} to read {filepath}')
+pdfwm = pdfWordMap()
+wordmap = pdfwm.parse_pdf(data, origin=Origin.BOTTOM_LEFT)
+pprint(wordmap[:N_ENTRIES])

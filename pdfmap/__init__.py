@@ -1,1 +1,2 @@
-from pdfmap.pdfmap import pdfWordMap, PDFTextExtractionNotAllowed
+from pdfmap.pdfmap import PDFTextExtractionNotAllowed, pdfWordMap
+from pdfmap.utils import Origin, Shape
