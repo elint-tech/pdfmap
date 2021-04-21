@@ -22,3 +22,13 @@ print(pdfwm.parse_pdf('folder/pdfname.pdf'))
 ```
 
 For other examples, check out [our example script](example.py)
+
+You can also extract [`wordmaze`](https://github.com/elint-tech/wordmaze/blob/main/README.md) `WordMaze` instances by using `PDFMaze`:
+
+```python
+from pdfmap import PDFMaze
+
+pdfmaze = PDFMaze()
+print(pdfmaze.parse_pdf('folder/pdfname.pdf'))
+```
+
