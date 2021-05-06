@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple, Union
 
 import pdfminer
 from pdfminer.converter import PDFPageAggregator
-from pdfminer.layout import LAParams
+from pdfminer.layout import LAParams, LTTextBox, LTText, LTChar, LTAnno
 from pdfminer.pdfdevice import PDFDevice
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
@@ -47,18 +47,132 @@ class pdfWordMap:
             page_number: int,
             page_size: Shape,
             origin: Origin = Origin.TOP_LEFT,
-            confidence: Optional[Number] = None
+            confidence: Optional[Number] = None,
+            split_words: bool = False,
+            key_split_chars: list = [' ']
     ) -> None:
         # loop over the object list
-        for obj in lt_objs:
-            if isinstance(obj, pdfminer.layout.LTTextLine):
-                x1, y1, x2, y2 = (
-                    round(vertex, 2)
-                    for vertex in obj.bbox
-                )
+        if split_words == False:
+            for obj in lt_objs:
+                if isinstance(obj, pdfminer.layout.LTTextLine):
+                    x1, y1, x2, y2 = (
+                        round(vertex, 2)
+                        for vertex in obj.bbox
+                    )
+
+                    if origin is Origin.TOP_LEFT:
+                        y1, y2 = (round(page_size.height - y2, 2), round(page_size.height - y1, 2))
+                    elif origin is not Origin.BOTTOM_LEFT:
+                        raise ValueError(
+                            f'there is no support for {origin} yet.'
+                            ' please use either'
+                            f' {Origin.BOTTOM_LEFT} or {Origin.TOP_LEFT}'
+                        )
+
+                    block = (
+                        page_number,
+                        (x1, y1),
+                        (x2, y2),
+                        obj.get_text().replace('\n', '')
+                    )
+
+                    if confidence is not None:
+                        block += (confidence,)
+
+                    self.word_map.append(block)
+
+                # if it's a textbox, also recurse
+                if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
+                    self.parse_obj(
+                        obj._objs,
+                        page_number=page_number,
+                        page_size=page_size,
+                        origin=origin,
+                        confidence=confidence
+                    )
+
+                # if it's a container, recurse
+                elif isinstance(obj, pdfminer.layout.LTFigure):
+                    self.parse_obj(
+                        obj._objs,
+                        page_number=page_number,
+                        page_size=page_size,
+                        origin=origin,
+                        confidence=confidence
+                    )
+
+        else:
+            x1, y1, x2, y2, text = -1, -1, -1, -1, ''
+            for obj in lt_objs:
+                if isinstance(obj, LTText):
+                    for line in obj:
+                        for char in line:
+                            # If the char is a line-break or other symbol chosen by 
+                            #  the user, the word is complete
+                            if isinstance(char, LTAnno) or char.get_text() in key_split_chars:
+                                if x1 != -1:
+                                    # If the char is a line-break, get the coordinates
+                                    #  of the previous char
+                                    if not isinstance(char, LTAnno):
+                                        x2, y2, = round(char.bbox[2], 2), round(char.bbox[3], 2)
+                                    else:
+                                        x2, y2, = round(previous_char.bbox[2], 2), round(previous_char.bbox[3], 2)
+                                        
+                                    if origin is Origin.TOP_LEFT:
+                                        y1, y2 = (round(page_size.height - y2, 2), round(page_size.height - y1, 2))
+                                    elif origin is not Origin.BOTTOM_LEFT:
+                                        raise ValueError(
+                                            f'there is no support for {origin} yet.'
+                                            ' please use either'
+                                            f' {Origin.BOTTOM_LEFT} or {Origin.TOP_LEFT}'
+                                        )
+                                        
+                                    block = (
+                                        page_number,
+                                        (x1, y1),
+                                        (x2, y2),
+                                        text
+                                    )
+
+                                    if confidence is not None:
+                                        block += (confidence,)
+
+                                    self.word_map.append(block)
+
+                                x1, y1, x2, y2, text = -1, -1, -1, -1, ''
+                            elif isinstance(char, LTChar):
+                                text += char.get_text()
+                                if x1 == -1:
+                                    x1, y1, = round(char.bbox[0], 2), round(char.bbox[1], 2)
+                            previous_char = char
+
+                # if it's a textbox, also recurse
+                if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
+                    self.parse_obj(
+                        obj._objs,
+                        page_number=page_number,
+                        page_size=page_size,
+                        origin=origin,
+                        confidence=confidence
+                    )
+
+                # if it's a container, recurse
+                elif isinstance(obj, pdfminer.layout.LTFigure):
+                    self.parse_obj(
+                        obj._objs,
+                        page_number=page_number,
+                        page_size=page_size,
+                        origin=origin,
+                        confidence=confidence
+                    )
+
+            # If the last symbol in the PDF was neither other symbol chosen
+            #  by the user nor a line-break, add the last word to the word_map
+            if x1 != -1:
+                x2, y2, = round(char.bbox[2], 2), round(char.bbox[3], 2)
 
                 if origin is Origin.TOP_LEFT:
-                    y1, y2 = (page_size.height - y2, page_size.height - y1)
+                    y1, y2 = (round(page_size.height - y2, 2), round(page_size.height - y1, 2))
                 elif origin is not Origin.BOTTOM_LEFT:
                     raise ValueError(
                         f'there is no support for {origin} yet.'
@@ -70,7 +184,7 @@ class pdfWordMap:
                     page_number,
                     (x1, y1),
                     (x2, y2),
-                    obj.get_text().replace('\n', '')
+                    text
                 )
 
                 if confidence is not None:
@@ -78,31 +192,13 @@ class pdfWordMap:
 
                 self.word_map.append(block)
 
-            # if it's a textbox, also recurse
-            if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
-                self.parse_obj(
-                    obj._objs,
-                    page_number=page_number,
-                    page_size=page_size,
-                    origin=origin,
-                    confidence=confidence
-                )
-
-            # if it's a container, recurse
-            elif isinstance(obj, pdfminer.layout.LTFigure):
-                self.parse_obj(
-                    obj._objs,
-                    page_number=page_number,
-                    page_size=page_size,
-                    origin=origin,
-                    confidence=confidence
-                )
-
     def parse_pdf(
             self,
             source: Union[str, PathLike, bytes],
             origin: Origin = Origin.TOP_LEFT,
-            confidence: Optional[Number] = None
+            confidence: Optional[Number] = None,
+            split_words: bool = False,
+            key_split_chars: list = [' ']
     ) -> Union[WordMap, ConfidentWordMap]:
         self.word_map = []
 
@@ -152,7 +248,9 @@ class pdfWordMap:
                 page_number=page_number+1,
                 page_size=self.page_size(page),
                 origin=origin,
-                confidence=confidence
+                confidence=confidence,
+                split_words=split_words,
+                key_split_chars=key_split_chars
             )
 
         return self.word_map

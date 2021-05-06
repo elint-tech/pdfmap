@@ -24,6 +24,11 @@ pdfwm = pdfWordMap()
 wordmap = pdfwm.parse_pdf(filepath, confidence=100)
 pprint(wordmap[:N_ENTRIES])
 
+print_header(f'First {N_ENTRIES} entries from {filepath} split to words')
+pdfwm = pdfWordMap()
+wordmap = pdfwm.parse_pdf(filepath, split_words=True, key_split_chars=[' ', ':', '-'])
+pprint(wordmap[:N_ENTRIES])
+
 
 print_header(f'First {N_ENTRIES} entries from {filepath} bytes')
 with filepath.open('rb') as fp:
