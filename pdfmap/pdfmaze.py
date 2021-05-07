@@ -176,16 +176,13 @@ class PDFMaze:
                 key_split_chars=key_split_chars
             )
 
-            print(textboxes)
-
             wm_page = WMPage(
                 shape=self.page_shape(page),
                 origin=Origin.BOTTOM_LEFT, # default origin from pdfminer
                 entries=textboxes
-            ).rebased(origin=origin)
+            ).rebase(origin=origin)
 
             wm.append(wm_page)
-            print(wm_page)
 
         return wm
 

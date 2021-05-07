@@ -56,12 +56,12 @@ class pdfWordMap:
             for obj in lt_objs:
                 if isinstance(obj, LTTextLine):
                     x1, y1, x2, y2 = (
-                        round(vertex, 2)
+                        vertex
                         for vertex in obj.bbox
                     )
 
                     if origin is Origin.TOP_LEFT:
-                        y1, y2 = (round(page_size.height - y2, 2), round(page_size.height - y1, 2))
+                        y1, y2 = (page_size.height - y2, page_size.height - y1)
                     elif origin is not Origin.BOTTOM_LEFT:
                         raise ValueError(
                             f'there is no support for {origin} yet.'
@@ -114,12 +114,12 @@ class pdfWordMap:
                                     # If the char is a line-break, get the coordinates
                                     #  of the previous char
                                     if not isinstance(char, LTAnno):
-                                        x2, y2, = round(char.bbox[2], 2), round(char.bbox[3], 2)
+                                        x2, y2, = char.bbox[2], char.bbox[3]
                                     else:
-                                        x2, y2, = round(previous_char.bbox[2], 2), round(previous_char.bbox[3], 2)
+                                        x2, y2, = previous_char.bbox[2], previous_char.bbox[3]
                                         
                                     if origin is Origin.TOP_LEFT:
-                                        y1, y2 = (round(page_size.height - y2, 2), round(page_size.height - y1, 2))
+                                        y1, y2 = (page_size.height - y2, page_size.height - y1)
                                     elif origin is not Origin.BOTTOM_LEFT:
                                         raise ValueError(
                                             f'there is no support for {origin} yet.'
@@ -143,16 +143,16 @@ class pdfWordMap:
                             elif isinstance(char, LTChar):
                                 text += char.get_text()
                                 if x1 == -1:
-                                    x1, y1, = round(char.bbox[0], 2), round(char.bbox[1], 2)
+                                    x1, y1, = char.bbox[0], char.bbox[1]
                             previous_char = char
 
             # If the last symbol in the PDF was neither other symbol chosen
             #  by the user nor a line-break, add the last word to the word_map
             if x1 != -1:
-                x2, y2, = round(char.bbox[2], 2), round(char.bbox[3], 2)
+                x2, y2, = char.bbox[2], char.bbox[3]
 
                 if origin is Origin.TOP_LEFT:
-                    y1, y2 = (round(page_size.height - y2, 2), round(page_size.height - y1, 2))
+                    y1, y2 = (page_size.height - y2, page_size.height - y1)
                 elif origin is not Origin.BOTTOM_LEFT:
                     raise ValueError(
                         f'there is no support for {origin} yet.'
