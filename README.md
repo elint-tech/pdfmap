@@ -15,9 +15,9 @@ pip3 install pdfmap
 Simple usage can be achieved with:
 
 ```python
-from pdfmap import pdfWordMap
+from pdfmap import PDFWordMap
 
-pdfwm = pdfWordMap()
+pdfwm = PDFWordMap()
 print(pdfwm.parse_pdf('folder/pdfname.pdf'))
 ```
 
