@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple, Union
 
 import pdfminer
 from pdfminer.converter import PDFPageAggregator
-from pdfminer.layout import LAParams, LTTextBox, LTText, LTChar, LTAnno
+from pdfminer.layout import LAParams, LTText, LTAnno, LTChar, LTTextLine, LTTextBoxHorizontal, LTFigure
 from pdfminer.pdfdevice import PDFDevice
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
@@ -54,7 +54,7 @@ class pdfWordMap:
         # loop over the object list
         if split_words == False:
             for obj in lt_objs:
-                if isinstance(obj, pdfminer.layout.LTTextLine):
+                if isinstance(obj, LTTextLine):
                     x1, y1, x2, y2 = (
                         round(vertex, 2)
                         for vertex in obj.bbox
@@ -82,7 +82,7 @@ class pdfWordMap:
                     self.word_map.append(block)
 
                 # if it's a textbox, also recurse
-                if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
+                if isinstance(obj, LTTextBoxHorizontal):
                     self.parse_obj(
                         obj._objs,
                         page_number=page_number,
@@ -92,7 +92,7 @@ class pdfWordMap:
                     )
 
                 # if it's a container, recurse
-                elif isinstance(obj, pdfminer.layout.LTFigure):
+                elif isinstance(obj, LTFigure):
                     self.parse_obj(
                         obj._objs,
                         page_number=page_number,
@@ -145,26 +145,6 @@ class pdfWordMap:
                                 if x1 == -1:
                                     x1, y1, = round(char.bbox[0], 2), round(char.bbox[1], 2)
                             previous_char = char
-
-                # if it's a textbox, also recurse
-                if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
-                    self.parse_obj(
-                        obj._objs,
-                        page_number=page_number,
-                        page_size=page_size,
-                        origin=origin,
-                        confidence=confidence
-                    )
-
-                # if it's a container, recurse
-                elif isinstance(obj, pdfminer.layout.LTFigure):
-                    self.parse_obj(
-                        obj._objs,
-                        page_number=page_number,
-                        page_size=page_size,
-                        origin=origin,
-                        confidence=confidence
-                    )
 
             # If the last symbol in the PDF was neither other symbol chosen
             #  by the user nor a line-break, add the last word to the word_map
