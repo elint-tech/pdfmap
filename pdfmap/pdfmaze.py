@@ -2,7 +2,7 @@ import io
 import itertools
 from numbers import Real
 from os import PathLike
-from typing import Iterable, List, Optional, Union
+from typing import Iterable, List, Optional, Union, Iterable
 
 import pdfminer
 from pdfminer.converter import PDFPageAggregator
@@ -23,14 +23,14 @@ class PDFMaze:
         lt_objs,
         confidence: Optional[Real] = None,
         split_words: bool = False,
-        key_split_chars: list = [' ']
+        key_split_chars: Iterable[str] = (' ',)
     ) -> Iterable[TextBox]:
         return itertools.chain.from_iterable(
             self._parse_obj(
                 obj, 
                 confidence=confidence, 
                 split_words=split_words, 
-                key_split_chars=key_split_chars
+                key_split_chars = tuple(key_split_chars)
                 )
             for obj in lt_objs
         )
@@ -40,11 +40,11 @@ class PDFMaze:
             obj,
             confidence: Optional[Real] = None,
             split_words: bool = False,
-            key_split_chars: list = [' ']
+            key_split_chars: Iterable[str] = (' ',)
     ) -> List[TextBox]:
         textboxes = []
 
-        if split_words == False:
+        if not split_words:
             if isinstance(obj, LTTextLine):
                 x1, y1, x2, y2 = obj.bbox
 
@@ -68,7 +68,7 @@ class PDFMaze:
                 textboxes.extend(other_textboxes)
 
         else:
-            x1, y1, x2, y2, text = -1, -1, -1, -1, ''
+            x1, y1, x2, y2, text, previous_char = -1, -1, -1, -1, '', None
             if isinstance(obj, LTText):
                 for line in obj:
                     for char in line:
@@ -78,7 +78,7 @@ class PDFMaze:
                             if x1 != -1:
                                 # If the char is a line-break, get the coordinates
                                 #  of the previous char
-                                if not isinstance(char, LTAnno):
+                                if not isinstance(char, LTAnno) or not previous_char:
                                     x2, y2, = char.bbox[2], char.bbox[3]
                                 else:
                                     x2, y2, = previous_char.bbox[2], previous_char.bbox[3]
@@ -125,7 +125,7 @@ class PDFMaze:
             origin: Origin = Origin.TOP_LEFT,
             confidence: Optional[Real] = None,
             split_words: bool = False,
-            key_split_chars: list = [' ']
+            key_split_chars: Iterable[str] = (' ',)
     ) -> WordMaze:
         if isinstance(source, bytes):
             # Use PDF bytes.
@@ -173,7 +173,7 @@ class PDFMaze:
                 layout._objs,
                 confidence=confidence,
                 split_words=split_words,
-                key_split_chars=key_split_chars
+                key_split_chars = tuple(key_split_chars)
             )
 
             wm_page = WMPage(

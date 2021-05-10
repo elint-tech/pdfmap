@@ -1,7 +1,7 @@
 import io
 from numbers import Number
 from os import PathLike
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Iterable
 
 from pdfmap.pdfmaze import PDFMaze
 from wordmaze.wordmaze import Origin, Shape
@@ -36,7 +36,7 @@ class PDFWordMap:
             origin: Origin = Origin.TOP_LEFT,
             confidence: Optional[Number] = None,
             split_words: bool = False,
-            key_split_chars: list = [' ']
+            key_split_chars: Iterable[str] = (' ',)
     ) -> Union[WordMap, ConfidentWordMap]:
         self.word_map = []
 
@@ -45,7 +45,7 @@ class PDFWordMap:
             origin=origin,
             confidence=confidence,
             split_words=split_words,
-            key_split_chars=key_split_chars
+            key_split_chars = tuple(key_split_chars)
         )
 
         for index, page in enumerate(word_maze):
