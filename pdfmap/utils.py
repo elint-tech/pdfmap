@@ -1,6 +1,7 @@
 import enum
-from dataclasses import dataclass
 from numbers import Number
+
+from dataclassy import dataclass
 
 
 @dataclass(frozen=True)
