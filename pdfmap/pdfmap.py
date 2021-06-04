@@ -1,10 +1,9 @@
-import io
+from typing import List, Optional, Tuple, Union, Iterable
 from numbers import Number
 from os import PathLike
-from typing import List, Optional, Tuple, Union, Iterable
 
-from pdfmap.pdfmaze import PDFMaze
 from wordmaze.wordmaze import Origin, Shape
+from pdfmap.pdfmaze import PDFMaze
 
 WordMap = List[
     Tuple[
@@ -69,10 +68,7 @@ class PDFWordMap:
             self,
             source: Union[str, PathLike, bytes]
     ) -> List[Shape]:
-        pages_size = []
         word_maze = pdfmaze.parse_pdf(source=source)
-        for page in word_maze:
-            shape = page.shape
-            pages_size.append(shape)
+        pages_size = [page.shape for page in word_maze]
 
         return pages_size
