@@ -1,20 +1,19 @@
-import io
-import itertools
+from typing import Iterable, List, Optional, Union, Iterable
 from numbers import Real
 from os import PathLike
-from typing import Iterable, List, Optional, Union, Iterable
+import itertools
+import io
 
-import pdfminer
-from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LAParams, LTText, LTAnno, LTChar, LTTextLine, LTTextBoxHorizontal, LTFigure
-from pdfminer.pdfdevice import PDFDevice
-from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage, PDFTextExtractionNotAllowed
+from pdfminer.converter import PDFPageAggregator
+from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfdevice import PDFDevice
 from pdfminer.pdfparser import PDFParser
-from wordmaze.wordmaze import Origin
-from wordmaze.wordmaze import Page as WMPage
 from wordmaze.wordmaze import Shape, TextBox, WordMaze
+from wordmaze.wordmaze import Page as WMPage
+from wordmaze.wordmaze import Origin
 
 
 class PDFMaze:
