@@ -1,33 +1,34 @@
-#!/usr/bin/env python
-
 # PyPi publish flow
 # python3 setup.py sdist bdist_wheel
 # python3 -m twine upload dist/*
 
+from pathlib import Path
 from setuptools import setup, find_packages
-from os.path import join, dirname
 
-here = dirname(__file__)
+here = Path(__file__).resolve().parent
 
-_VERSION = '0.2.0'
+VERSION = (here / 'VERSION').read_text().strip()
 
-setup(name='pdfmap',
-      version=_VERSION,
-      description="Turning PDF into WordMap algorithm",
-      long_description=open(join(here, 'README.md')).read(),
-      long_description_content_type="text/markdown",
-      license='proprietary',
-      author='elint-tech',
-      author_email='contato@elint.com.br',
-      url='https://github.com/elint-tech/pdfmap/',
-      download_url = 'https://github.com/elint-tech/pdfmap/dist/pdfmap-' + _VERSION + 'tar.gz',
-      install_requires=list(map(
-        lambda string: string.strip("\n"),
-        open("requirements.txt", "r")
-      )),
-      packages=find_packages(),
-      keywords = ['pdfmap', 'pdf', 'wordmap'],
-      classifiers=[
+setup(
+    name='pdfmap',
+    version=VERSION,
+
+    description="Turning PDFs into WordMaps and WordMazes",
+    long_description=(here / 'README.md').read_text(),
+    long_description_content_type="text/markdown",
+
+    license='proprietary',
+    author='elint-tech',
+    author_email='contato@elint.com.br',
+
+    url='https://github.com/elint-tech/pdfmap/',
+    download_url=f'https://github.com/elint-tech/pdfmap/dist/pdfmap-{VERSION}.tar.gz',
+
+    install_requires=Path(here, 'requirements.txt').read_text().splitlines(),
+    packages=find_packages(),
+
+    keywords=['pdfmap', 'pdf', 'wordmap'],
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Intended Audience :: Information Technology',
@@ -36,8 +37,12 @@ setup(name='pdfmap',
         'Topic :: Software Development',
         'Topic :: Utilities',
         'License :: Other/Proprietary License',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Operating System :: OS Independent',
-      ],
-      )
+    ],
+)
