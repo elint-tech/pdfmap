@@ -43,8 +43,11 @@ def get_all_pdf_images(file_location: str):
                 y1 = page_height - rect.y0
                 y2 = page_height - rect.y1
 
+            # get the image extension
+            image_ext = base_image["ext"]
+
             # append the new image object to the list
-            all_images_objects.append((x1, x2, y1, y2, image_bytes))
+            all_images_objects.append((x1, x2, y1, y2, image_bytes, image_ext))
     
     # return the list of all images objects on the pdf
     return all_images_objects
